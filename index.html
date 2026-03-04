@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <title>FranchiseFit MVP</title>
 
   <!-- Leaflet CSS -->
@@ -41,7 +42,15 @@
             id="locationInput"
             placeholder="Enter city or address (e.g. Austin, TX)"
           />
-
+          <input
+            id="latInput"
+            placeholder="Enter latitude (e.g. 30.2672)"
+          />
+          <input
+            id="lonInput"
+            placeholder="Enter longitude (e.g. -97.7431)"
+          />
+          <button id="getTractsBtn">Get Tracts</button>
           <select id="radius">
             <option value="3">3 mi</option>
             <option value="5" selected>5 mi</option>
@@ -104,6 +113,6 @@
   ></script>
 
   <!-- App Script -->
-  <script src="main.js"></script>
+  <script type="module" src="main.js"></script>
 </body>
 </html>

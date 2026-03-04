@@ -1,3 +1,5 @@
+import { getSchoolsWithinRadius, getTractsWithinRadius } from "./server.js";
+
 // ---------- MAP ----------
 const map = L.map("map", { zoomControl: true }).setView([41.9, -87.7], 10);
 
@@ -25,7 +27,9 @@ const saveBtn = document.getElementById("saveBtn");
 const savedList = document.getElementById("savedList");
 const exportBtn = document.getElementById("exportBtn");
 const importInput = document.getElementById("importInput");
-
+const getTractsBtn = document.getElementById("getTractsBtn");
+const latInput = document.getElementById("latInput");
+const lonInput = document.getElementById("lonInput");
 // ---------- HELPERS ----------
 function milesToMeters(mi) {
   return Number(mi) * 1609.344;
@@ -191,7 +195,14 @@ analyzeBtn.onclick = async () => {
     analyzeBtn.textContent = "Analyze";
   }
 };
+getTractsBtn.onclick = async () => {
+  const lat = parseFloat(latInput.value.trim());
+  const lon = parseFloat(lonInput.value.trim());
+  const radiusMi = parseFloat(radiusSelect.value);
+  let tracts = await getTractsWithinRadius(lat, lon, milesToMeters(radiusMi))
+  let schools = await getSchoolsWithinRadius(lat, lon, milesToMeters(radiusMi))
 
+}
 saveBtn.onclick = () => {
   if (!lastResult) return;
 
