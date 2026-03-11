@@ -60,6 +60,9 @@ export default function App() {
   const [factors, setFactors] = useState(buildInitialFactors);
   const [saved, setSaved] = useState(loadSaved);
   const [locationSet, setLocationSet] = useState(false);
+  const [analyzed, setAnalyzed] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
 
   const persistSaved = (list) => {
     setSaved(list);
@@ -92,6 +95,33 @@ export default function App() {
     const enabled = Object.values(factors).filter((f) => f.enabled);
     if (enabled.length === 0) return null;
     return Math.round(enabled.reduce((sum, f) => sum + f.value, 0) / enabled.length);
+  };
+
+  const handleAnalyze = () => {
+    const enabled = Object.entries(factors).filter(([, f]) => f.enabled);
+    if (enabled.length === 0) return;
+
+    setAnalyzing(true);
+    setAnalyzed(false);
+    setAnalysisResult(null);
+
+    // Mock analysis with a fake delay
+    setTimeout(() => {
+      const mockScores = {};
+      enabled.forEach(([key, f]) => {
+        // Add slight random variance (-8 to +5) around user's slider value to simulate real data
+        const noise = Math.floor(Math.random() * 14) - 8;
+        mockScores[key] = Math.max(0, Math.min(100, f.value + noise));
+      });
+
+      const avg = Math.round(
+        Object.values(mockScores).reduce((s, v) => s + v, 0) / enabled.length
+      );
+
+      setAnalysisResult({ factorScores: mockScores, overall: avg });
+      setAnalyzing(false);
+      setAnalyzed(true);
+    }, 1500);
   };
 
   const handleSave = () => {
@@ -236,9 +266,6 @@ export default function App() {
           )}
         </div>
 
-        {/* Score */}
-        <ScoreCard factors={factors} />
-
         {/* Toggleable Factors */}
         <FactorPanel
           factors={factors}
@@ -246,21 +273,52 @@ export default function App() {
           onToggle={handleToggle}
         />
 
-        {/* Save button */}
+        {/* Analyze button */}
         <div className="card">
           <button
-            className="save-btn"
-            onClick={handleSave}
-            disabled={enabledCount === 0}
+            className="save-btn analyze-btn"
+            onClick={handleAnalyze}
+            disabled={enabledCount === 0 || analyzing}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
-              <polyline points="17 21 17 13 7 13 7 21" />
-              <polyline points="7 3 7 8 15 8" />
-            </svg>
-            Save Location
+            {analyzing ? (
+              <>
+                <span className="spinner" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                Analyze Location
+              </>
+            )}
           </button>
         </div>
+
+        {/* Score — only after analysis */}
+        {analyzed && analysisResult && (
+          <ScoreCard factors={factors} analysisResult={analysisResult} />
+        )}
+
+        {/* Save button — only after analysis */}
+        {analyzed && analysisResult && (
+          <div className="card">
+            <button
+              className="save-btn"
+              onClick={handleSave}
+              disabled={enabledCount === 0}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+              </svg>
+              Save Location
+            </button>
+          </div>
+        )}
 
         {/* Saved Locations */}
         <SavedLocations

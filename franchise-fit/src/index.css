@@ -839,6 +839,83 @@ button:disabled {
   background: var(--muted);
 }
 
+/* ============= ANALYZE BUTTON ============= */
+.analyze-btn {
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 55%, #0ea5e9 120%);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============= SCORE BREAKDOWN ============= */
+.score-breakdown {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.breakdown-label {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.breakdown-vals {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.breakdown-score {
+  font-weight: 700;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.breakdown-diff {
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.breakdown-diff.ok {
+  color: var(--ok);
+  background: rgba(22, 163, 74, 0.08);
+}
+
+.breakdown-diff.warn {
+  color: var(--warn);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.breakdown-diff.bad {
+  color: var(--bad);
+  background: rgba(239, 68, 68, 0.08);
+}
+
 /* ============= RESPONSIVE ============= */
 @media (max-width: 950px) {
   .app {

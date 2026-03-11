@@ -21,7 +21,7 @@ export function useAutocomplete(query) {
     abortRef.current = controller;
 
     const url =
-      "https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1&q=" +
+      "https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1&countrycodes=us&q=" +
       encodeURIComponent(debouncedQuery);
 
     fetch(url, {
