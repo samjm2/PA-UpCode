@@ -5,10 +5,9 @@ import FactorPanel, { FACTOR_DEFAULTS } from "./components/FactorPanel";
 import ScoreCard, { getVerdict } from "./components/ScoreCard";
 import SavedLocations from "./components/SavedLocations";
 import "./App.css";
-
+import supabase from "./utils/supabase";
 const DEFAULT_CENTER = [41.9, -87.7];
 const DEFAULT_ZOOM = 10;
-
 function buildInitialFactors() {
   const out = {};
   FACTOR_DEFAULTS.forEach(({ key, defaultValue }) => {
@@ -68,7 +67,7 @@ export default function App() {
     setSaved(list);
     localStorage.setItem("savedLocationsV2", JSON.stringify(list));
   };
-
+  
   const handleFactorChange = useCallback((key, value) => {
     setFactors((prev) => ({
       ...prev,
@@ -97,7 +96,7 @@ export default function App() {
     return Math.round(enabled.reduce((sum, f) => sum + f.value, 0) / enabled.length);
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     const enabled = Object.entries(factors).filter(([, f]) => f.enabled);
     if (enabled.length === 0) return;
 
@@ -122,6 +121,8 @@ export default function App() {
       setAnalyzing(false);
       setAnalyzed(true);
     }, 1500);
+    const {data} = await supabase.rpc("tracts_within_radius", {center_lat: 41.8781, center_lon: -87.7, radius_meters: 5 * 1609.34});
+    console.log(data)
   };
 
   const handleSave = () => {
