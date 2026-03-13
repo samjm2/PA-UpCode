@@ -393,3 +393,21 @@ renderSaved();
 updateUI(analyzeMock());
 setCircle(lastCenter);
 setMarker(lastCenter, "Chicago (default)");
+
+// ---------- FETCH SCHOOLS FUNCTION ----------
+/**
+ * Fetch nearby schools from the API.
+ * @param {string} address - The address to search for nearby schools.
+ * @param {number} radius - The radius in miles to search within.
+ * @returns {Promise<Array>} - A promise that resolves to an array of school objects.
+ */
+async function fetchNearbySchools(address, radius) {
+  const url = `http://127.0.0.1:5000/api/find-schools?address=${encodeURIComponent(address)}&radius=${radius}`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch nearby schools");
+  }
+
+  return await response.json();
+}

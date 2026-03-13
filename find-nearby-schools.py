@@ -1,11 +1,14 @@
+from flask import Flask, request, jsonify
 import pandas as pd
 import numpy as np
 from geopy.geocoders import Nominatim
 
-# Load once (outside the function)
+app = Flask(__name__)
+
+# Load the csv
 df = pd.read_csv("data/public-schools.csv")
 
-# Convert to radians once
+# Convert to radians
 df["lat_rad"] = np.radians(df["Latitude"])
 df["lon_rad"] = np.radians(df["Longitude"])
 
@@ -23,43 +26,34 @@ def haversine(lat1, lon1, lat2, lon2):
     return R * c
 
 # Function to find schools within a certain radius of an address
-def find_nearby_schools(address, radius_miles=5):
+def find_nearby_schools(address, radius_miles):
     # Geocode the address to get latitude and longitude
     geolocator = Nominatim(user_agent="school_finder")
     location = geolocator.geocode(address)
     # Verify if the geocoding was successful
     if not location:
-        print("Address not found.")
-        return pd.DataFrame()
+        return []
 
     lat = np.radians(location.latitude)
     lon = np.radians(location.longitude)
-
-    # Calculate distances to all schools
-    distances = haversine(
-        lat,
-        lon,
-        df["lat_rad"].values,
-        df["lon_rad"].values
-    )
-    # Add distances to the DataFrame
+    distances = haversine(lat, lon, df["lat_rad"].values, df["lon_rad"].values)
     df["Distance_Miles"] = distances
+    nearby = df[df["Distance_Miles"] <= radius_miles].sort_values("Distance_Miles")
+    return nearby[["School Name", "State Name", "Total Students", "Distance_Miles"]].to_dict(orient="records")
 
-    # Filter schools within the specified radius and sort by distance
-    return (
-        df[df["Distance_Miles"] <= radius_miles]
-        .sort_values("Distance_Miles")
-        [["School Name", "State Name", "Total Students", "Distance_Miles"]]
-    )
+# API endpoint
+@app.route("/api/find-schools", methods=["GET"])
+def api_find_schools():
+    address = request.args.get("address")
+    radius = float(request.args.get("radius", 5))
+    if not address:
+        return jsonify({"error": "Address is required"}), 400
 
-# Example usage
-address = input("Enter an address: ")
-result = find_nearby_schools(address)
-if not result.empty:
-    print(f"\nFound {len(result)} schools within 5 miles.")
-    # Save to CSV
-    csv = "nearby-schools.csv"
-    result.to_csv(csv, index=False)
-    print(f"Results saved to {csv}")
-else:
-    print("No schools found within the radius.")
+    try:
+        schools = find_nearby_schools(address, radius)
+        return jsonify(schools)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
